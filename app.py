@@ -23,6 +23,10 @@ def list_tasks():
     tareas = ["Lavar la ropa", "Limpiar la casa", "Hacer la compra", "Estudiar para el examen", "Hacer ejercicio", "Leer un libro"]
     return render_template('tasks.html', tareas=tareas)
 
+@app.route('/task')
+def view_task():
+    return render_template('task.html')
+
 @app.route('/task/create')
 def create_task():
     return render_template('create_task.html')
