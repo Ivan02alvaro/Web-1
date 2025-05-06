@@ -1,6 +1,16 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
+from config import Config
+from models import db, Usuario, Tarea
 
 app = Flask(__name__)
+#Configuración de la aplicación Flask (donde se indica la base de datos a usar)
+app.config.from_object(Config)
+
+# Inicializar la base de datos
+db.init_app(app)
+# Crear la base de datos si no existe
+with app.app_context():
+    db.create_all()
 
 @app.route('/')
 def home():
@@ -10,8 +20,13 @@ def home():
 def login():
     return render_template('login.html')
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if request.method == 'POST':
+        nombre = request.form['nombre']
+        correo = request.form['correo']
+        contrasena = request.form['contrasena']
+        return f"<p>{nombre}, {correo}, {contrasena}<p>"
     return render_template('signup.html')
 
 @app.route('/about')
