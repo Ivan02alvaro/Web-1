@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect, session
 from config import Config
 from models import db, Usuario, Tarea
 
@@ -16,8 +16,19 @@ with app.app_context():
 def home():
     return render_template('index.html')
 
-@app.route('/login')
+@app.route('/login', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        correo = request.form['correo']
+        contrasena = request.form['contrasena']
+        
+        usuario = Usuario.query.filter_by(correo=correo).first()
+        if usuario and usuario.verificar_contrasena(contrasena):
+            session["usuario_id"] = usuario.id
+            session["usuario_nombre"] = usuario.nombre
+            return redirect(url_for('list_tasks'))
+        else:
+            return "Correo o contraseña incorrectos."
     return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -26,7 +37,14 @@ def signup():
         nombre = request.form['nombre']
         correo = request.form['correo']
         contrasena = request.form['contrasena']
-        return f"<p>{nombre}, {correo}, {contrasena}<p>"
+        if Usuario.query.filter_by(correo=correo).first():
+            return "El correo ya está registrado."
+        else:
+            nuevo_usuario = Usuario(nombre=nombre, correo=correo)
+            nuevo_usuario.colocar_contrasena(contrasena)
+            db.session.add(nuevo_usuario)
+            db.session.commit()
+            return redirect(url_for('login'))
     return render_template('signup.html')
 
 @app.route('/about')
