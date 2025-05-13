@@ -62,9 +62,10 @@ def list_tasks():
     tareas = Tarea.query.filter_by(usuario_id=session["usuario_id"]).all()
     return render_template('tasks.html', tareas=tareas)
 
-@app.route('/task')
-def view_task():
-    return render_template('task.html')
+@app.route('/task/<int:id>')
+def view_task(id):
+    tarea = Tarea.query.get_or_404(id)
+    return render_template('task.html', tarea=tarea)
 
 @app.route('/task/create', methods=['GET', 'POST'])
 def create_task():
